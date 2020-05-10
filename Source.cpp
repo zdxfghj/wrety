@@ -1,48 +1,54 @@
-#include<stdio.h>
+#include <stdio.h>
+#include <Windows.h>
+#include <iostream>
 
-#include<Windows.h>
-#include<tchar.h>
-
+using namespace std;
 
 int main()
 {
-	HANDLE hNamedPipe;
-	LPSTR  ipNamePipe = (LPSTR)"\\\\.\\pipe\\Pipe228";
+	LPSTR cmdline = (LPSTR)"\\\\.\\pipe\\Mypipi";
+	HANDLE namepipe;
+	namepipe = CreateFile(cmdline, GENERIC_ALL, 0, NULL, OPEN_EXISTING, 0, NULL);
 
-	hNamedPipe = CreateFile(ipNamePipe, GENERIC_WRITE | GENERIC_READ, 0, NULL,
-		OPEN_EXISTING, 0, NULL);
-	
-	if (hNamedPipe == INVALID_HANDLE_VALUE) {
-		printf("CreateFile error #%lu\n", GetLastError());
 
+	HANDLE hEvent = CreateEvent(NULL, FALSE, FALSE, (LPCSTR)"ONESECOND");
+
+	if (namepipe == INVALID_HANDLE_VALUE)
+	{
+		cout << "error: " + GetLastError() << endl;
 		system("pause");
 		return 0;
 	}
 
-	printf("Connected.\n");
-	char commandBuf[256] = "\0";
-	DWORD cWritten;
-	DWORD cREAD;
+	cout << "Connected:)"<<endl;
+	char command[256] = "\0";
+	DWORD cRead;
 
-	while (true) {
-		//if (!WriteFile(hNamedPipe, commandBuf, strlen(commandBuf) + 1, &cWritten, NULL))
-		//	break;
+	while (true)
+	{
 
-		if (ReadFile(hNamedPipe, commandBuf, 512, &cREAD, NULL)) {
-			printf("%s", commandBuf);
-
-			if (!strcmp(commandBuf, "exit "))
-				break;
-		}
-		else {
-			printf("ReadFile error #%lu\n", GetLastError());
-
-			system("pause");
-			CloseHandle(hNamedPipe);
-			return 0;
+		if (WaitForSingleObject(hEvent, 3000) == WAIT_OBJECT_0) {
+			printf("It's ok\n");
+			ResetEvent(hEvent);
+			
+			if (ReadFile(namepipe, command, 512, &cRead, NULL))
+			{
+				SetEvent(hEvent);
+				cout << command;
+				if (!strcmp(command, "EXIT\n")) {
+					break;
+				}
+			}
+			else {
+				cout << GetLastError() << endl;
+				system("pause");
+				CloseHandle(namepipe);
+				return 0;
+			}
 		}
 	}
+	CloseHandle(namepipe);
+	system("pause");
 
-	CloseHandle(hNamedPipe);
 	return 0;
 }
