@@ -106,10 +106,10 @@ int main()
 {
 	setlocale(LC_ALL, "Russian");
 	printf_s("Control\n");
-	printf_s("\t+ — Add new process.\n");
-	printf_s("\t- — Delete last process.\n");
-	printf_s("\tQ — Quit.\n");
-	printf_s("\tP — Turn on/off pause.\n");
+	printf_s("\t+ â€” Add new process.\n");
+	printf_s("\t- â€” Delete last process.\n");
+	printf_s("\tQ â€” Quit.\n");
+	printf_s("\tP â€” Turn on/off pause.\n");
 	printf_s("\n");
 
 	int ch;
